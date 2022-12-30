@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"main/grpc/connect"
 	"os"
@@ -51,10 +52,28 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 	return &connect.ConnectedTo{Pid: server.GetPid()}, nil
 }
 
+func (server *Server) LeaveNetwork(ctx context.Context, peerLeave *connect.PeerLeave) (*connect.Void, error) {
+	if peer, exists := server.peers[peerLeave.GetPid()]; exists {
+		_ = peer.conn.Close()
+		server.RemovePeer(peer.pid)
+
+		log.Printf("Peer %d has left the network", peer.pid)
+		// TODO: Print that the peer 'name' has left the chat
+
+		return &connect.Void{}, nil
+	}
+
+	return nil, fmt.Errorf("peer %d was not found", peerLeave.GetPid())
+}
+
 func (server *Server) GetPid() uint32 {
 	return server.pid
 }
 
 func (server *Server) AddPeer(peer *Peer) {
 	server.peers[peer.pid] = peer
+}
+
+func (server *Server) RemovePeer(pid uint32) {
+	delete(server.peers, pid)
 }
