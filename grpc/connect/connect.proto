@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package connect;
+
+option go_package = "./grpc/connect";
+
+service ConnectService {
+    rpc JoinNetwork(PeerJoin) returns (ConnectedTo);
+    rpc LeaveNetwork(PeerLeave) returns (Void);
+}
+
+message PeerJoin {
+    uint32 pid = 1;
+    string port = 2;
+}
+
+message PeerLeave {
+    uint32 pid = 1;
+}
+
+message ConnectedTo {
+    uint32 pid = 1;
+}
+
+message Void {}
