@@ -4,6 +4,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
+	"strconv"
 )
 
 func ConnectClient(port string) *grpc.ClientConn {
@@ -17,4 +18,14 @@ func ConnectClient(port string) *grpc.ClientConn {
 	}
 
 	return conn
+}
+
+func ParsePort(portStr string) uint16 {
+	parsed, err := strconv.ParseUint(portStr, 10, 16)
+
+	if err != nil {
+		log.Fatalf("Failed to parse '%s' as port: %v", portStr, err)
+	}
+
+	return uint16(parsed)
 }
