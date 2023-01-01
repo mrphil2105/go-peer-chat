@@ -8,7 +8,7 @@ import (
 )
 
 func ConnectClient(port string) *grpc.ClientConn {
-	log.Printf("Connecting to on port %s...", port)
+	log.Printf("Connecting to peer on port %s...", port)
 
 	conn, err := grpc.Dial(net.JoinHostPort("localhost", port),
 		grpc.WithTransportCredentials(insecure.NewCredentials()))

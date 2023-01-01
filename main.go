@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bufio"
+	"context"
 	"flag"
 	"fmt"
 	"google.golang.org/grpc"
@@ -10,6 +12,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -35,10 +38,11 @@ func main() {
 
 	log = lo.New(logFile, prefix, lo.Ltime)
 
-	RunServer()
+	server := RunServer()
+	ReadInput(server)
 }
 
-func RunServer() {
+func RunServer() *Server {
 	listener, err := net.Listen("tcp", net.JoinHostPort("localhost", port))
 
 	if err != nil {
@@ -56,4 +60,46 @@ func RunServer() {
 			log.Fatalf("Stopped serving due to error: %v", err)
 		}
 	}()
+
+	return server
+}
+
+func ReadInput(server *Server) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for scanner.Scan() {
+		input := strings.Split(scanner.Text(), " ")
+
+		switch input[0] {
+		case "/connect":
+			port := strconv.Itoa(int(countingPort + ParsePort(input[1])))
+			ConnectToPeer(server, port)
+		case "/peers":
+			PrintPeers(server)
+		}
+	}
+}
+
+func ConnectToPeer(server *Server, peerPort string) {
+	conn := ConnectClient(peerPort)
+	defer conn.Close() // Close the connection as the 'JoinNetwork' function will connect again properly.
+	client := connect.NewConnectServiceClient(conn)
+
+	_, err := client.JoinNetwork(context.Background(), &connect.PeerJoin{
+		Pid:  server.GetPid(),
+		Port: port,
+	})
+
+	if err != nil {
+		log.Printf("Unable to connect to peer on port %s", peerPort)
+	}
+}
+
+func PrintPeers(server *Server) {
+	counter := 0
+
+	for pid, _ := range server.peers {
+		counter++
+		fmt.Printf("%d: %d\n", counter, pid)
+	}
 }
