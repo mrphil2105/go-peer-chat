@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package connect;
+
+option go_package = "./grpc/chat";
+
+service ChatService {
+    rpc OpenChat(stream Message) returns (Void);
+}
+
+message Message {
+    uint32 pid = 1;
+    uint64 time = 2;
+    string content = 3;
+}
+
+message Void {}
