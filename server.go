@@ -3,21 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
+	"main/grpc/chat"
 	"main/grpc/connect"
 	"os"
 )
 
 type Server struct {
 	connect.UnimplementedConnectServiceServer
-	pid   uint32
-	time  uint64
-	peers map[uint32]*Peer
+	chat.UnimplementedChatServiceServer
+	pid    uint32
+	time   uint64
+	peers  map[uint32]*Peer
+	events chan *Event
 }
 
 func NewServer() *Server {
 	return &Server{
-		pid:   uint32(os.Getpid()),
-		peers: make(map[uint32]*Peer),
+		pid:    uint32(os.Getpid()),
+		peers:  make(map[uint32]*Peer),
+		events: make(chan *Event, 1),
 	}
 }
 

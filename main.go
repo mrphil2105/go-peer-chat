@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	lo "log"
+	"main/grpc/chat"
 	"main/grpc/connect"
 	"net"
 	"os"
@@ -39,6 +40,7 @@ func main() {
 	log = lo.New(logFile, prefix, lo.Ltime)
 
 	server := RunServer()
+	RunChat(server)
 	ReadInput(server)
 }
 
@@ -54,6 +56,7 @@ func RunServer() *Server {
 	go func() {
 		grpcServer := grpc.NewServer()
 		connect.RegisterConnectServiceServer(grpcServer, server)
+		chat.RegisterChatServiceServer(grpcServer, server)
 		log.Printf("Created gRPC server on port %s", port)
 
 		if err := grpcServer.Serve(listener); err != nil {
