@@ -85,7 +85,7 @@ func ConnectToPeer(server *Server, peerPort string) {
 	defer conn.Close() // Close the connection as the 'JoinNetwork' function will connect again properly.
 	client := connect.NewConnectServiceClient(conn)
 
-	_, err := client.JoinNetwork(context.Background(), &connect.PeerJoin{
+	connectedTo, err := client.JoinNetwork(context.Background(), &connect.PeerJoin{
 		Pid:  server.GetPid(),
 		Port: port,
 		Name: *name,
@@ -94,6 +94,9 @@ func ConnectToPeer(server *Server, peerPort string) {
 	if err != nil {
 		log.Printf("Unable to connect to peer on port %s", peerPort)
 	}
+
+	// Sync our time with the first peer we connected to
+	server.time = connectedTo.GetTime()
 }
 
 func PrintPeers(server *Server) {

@@ -10,6 +10,7 @@ import (
 type Server struct {
 	connect.UnimplementedConnectServiceServer
 	pid   uint32
+	time  uint64
 	peers map[uint32]*Peer
 }
 
@@ -49,7 +50,10 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 		}
 	}
 
-	return &connect.ConnectedTo{Pid: server.GetPid()}, nil
+	return &connect.ConnectedTo{
+		Pid:  server.GetPid(),
+		Time: server.GetTime(),
+	}, nil
 }
 
 func (server *Server) LeaveNetwork(ctx context.Context, peerLeave *connect.PeerLeave) (*connect.Void, error) {
@@ -68,6 +72,10 @@ func (server *Server) LeaveNetwork(ctx context.Context, peerLeave *connect.PeerL
 
 func (server *Server) GetPid() uint32 {
 	return server.pid
+}
+
+func (server *Server) GetTime() uint64 {
+	return server.time
 }
 
 func (server *Server) AddPeer(peer *Peer) {
