@@ -84,6 +84,8 @@ func ReadInput(server *Server) {
 		case "/connect":
 			port := strconv.Itoa(int(countingPort + ParsePort(input[1])))
 			ConnectToPeer(server, port)
+		case "/leave":
+			Disconnect(server)
 		case "/peers":
 			PrintPeers(server)
 		default:
@@ -109,6 +111,31 @@ func ConnectToPeer(server *Server, peerPort string) {
 
 	// Sync our time with the first peer we connected to
 	server.time = connectedTo.GetTime()
+}
+
+func Disconnect(server *Server) {
+	for pid, peer := range server.peers {
+		log.Printf("Sending PeerLeave to peer %d", pid)
+		_, err := peer.connClient.LeaveNetwork(context.Background(), &connect.PeerLeave{Pid: server.GetPid()})
+
+		if err != nil {
+			log.Printf("Failed to send PeerLeave to peer %d: %v", pid, err)
+		}
+
+		err = peer.stream.CloseSend()
+
+		if err != nil {
+			log.Printf("Unable to close stream to peer %d: %v", peer.pid, err)
+		}
+
+		err = peer.conn.Close()
+
+		if err != nil {
+			log.Printf("Unable to close connection to peer %d: %v", peer.pid, err)
+		}
+	}
+
+	server.peers = make(map[uint32]*Peer)
 }
 
 func PrintPeers(server *Server) {

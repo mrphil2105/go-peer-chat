@@ -65,7 +65,18 @@ func (server *Server) LeaveNetwork(ctx context.Context, peerLeave *connect.PeerL
 		// We raise event before removing peer to still allow reading from the map
 		server.events <- NewEvent(Leave, &chat.Message{Pid: peerLeave.GetPid()})
 
-		_ = peer.conn.Close()
+		err := peer.stream.CloseSend()
+
+		if err != nil {
+			log.Printf("Unable to close stream to peer %d: %v", peer.pid, err)
+		}
+
+		err = peer.conn.Close()
+
+		if err != nil {
+			log.Printf("Unable to close connection to peer %d: %v", peer.pid, err)
+		}
+
 		server.RemovePeer(peer.pid)
 
 		log.Printf("Peer %d has left the network", peer.pid)
