@@ -11,10 +11,14 @@ func (server *Server) OpenChat(stream chat.ChatService_OpenChatServer) error {
 	for {
 		msg, err := stream.Recv()
 
-		if err != nil && err != io.EOF {
-			log.Printf("Stream receive error: %v", err)
-			// TODO: Figure out a way to know what PID to remove.
-			return err
+		if err != nil {
+			if err != io.EOF {
+				log.Printf("Stream receive error: %v", err)
+				// TODO: Figure out a way to know what PID to remove.
+				return err
+			}
+
+			return nil
 		}
 
 		log.Printf("Received message '%s'", msg)
@@ -73,7 +77,7 @@ func (server *Server) SendMessage(content string) {
 		err := peer.stream.Send(msg)
 
 		if err != nil {
-			log.Printf("Failed to send to message to peer %d", pid)
+			log.Printf("Failed to send to message to peer %d: %v", pid, err)
 		}
 	}
 
