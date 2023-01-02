@@ -30,6 +30,7 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 		conn := ConnectClient(peerJoin.GetPort())
 		server.AddPeer(NewPeer(peerJoin.GetPid(), peerJoin.GetName(), conn))
 
+		server.events <- NewEvent(Join, &chat.Message{Pid: peerJoin.GetPid()})
 		log.Printf("Connected to peer %d", peerJoin.GetPid())
 
 		// Tell the rest of the network about the new peer
@@ -61,11 +62,13 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 
 func (server *Server) LeaveNetwork(ctx context.Context, peerLeave *connect.PeerLeave) (*connect.Void, error) {
 	if peer, exists := server.peers[peerLeave.GetPid()]; exists {
+		// We raise event before removing peer to still allow reading from the map
+		server.events <- NewEvent(Leave, &chat.Message{Pid: peerLeave.GetPid()})
+
 		_ = peer.conn.Close()
 		server.RemovePeer(peer.pid)
 
 		log.Printf("Peer %d has left the network", peer.pid)
-		// TODO: Print that the peer 'name' has left the chat
 
 		return &connect.Void{}, nil
 	}
