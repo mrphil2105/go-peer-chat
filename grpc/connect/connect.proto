@@ -12,6 +12,7 @@ service ConnectService {
 message PeerJoin {
     uint32 pid = 1;
     string port = 2;
+    string name = 3;
 }
 
 message PeerLeave {
@@ -20,6 +21,7 @@ message PeerLeave {
 
 message ConnectedTo {
     uint32 pid = 1;
+    uint64 time = 2;
 }
 
 message Void {}

@@ -7,13 +7,15 @@ import (
 
 type Peer struct {
 	pid        uint32
+	name       string
 	conn       *grpc.ClientConn
 	connClient connect.ConnectServiceClient
 }
 
-func NewPeer(pid uint32, conn *grpc.ClientConn, connClient connect.ConnectServiceClient) *Peer {
+func NewPeer(pid uint32, name string, conn *grpc.ClientConn, connClient connect.ConnectServiceClient) *Peer {
 	return &Peer{
 		pid:        pid,
+		name:       name,
 		conn:       conn,
 		connClient: connClient,
 	}

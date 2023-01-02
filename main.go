@@ -88,6 +88,7 @@ func ConnectToPeer(server *Server, peerPort string) {
 	_, err := client.JoinNetwork(context.Background(), &connect.PeerJoin{
 		Pid:  server.GetPid(),
 		Port: port,
+		Name: *name,
 	})
 
 	if err != nil {

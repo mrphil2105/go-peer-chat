@@ -24,7 +24,7 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 	if _, exists := server.peers[peerJoin.GetPid()]; !exists {
 		conn := ConnectClient(peerJoin.GetPort())
 		client := connect.NewConnectServiceClient(conn)
-		server.AddPeer(NewPeer(peerJoin.GetPid(), conn, client))
+		server.AddPeer(NewPeer(peerJoin.GetPid(), peerJoin.GetName(), conn, client))
 
 		log.Printf("Connected to peer %d", peerJoin.GetPid())
 
@@ -39,6 +39,7 @@ func (server *Server) JoinNetwork(ctx context.Context, peerJoin *connect.PeerJoi
 				_, err = peer.connClient.JoinNetwork(ctx, &connect.PeerJoin{
 					Pid:  server.GetPid(),
 					Port: port,
+					Name: *name,
 				})
 			}
 
