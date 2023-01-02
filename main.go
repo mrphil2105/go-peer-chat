@@ -71,7 +71,14 @@ func ReadInput(server *Server) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
-		input := strings.Split(scanner.Text(), " ")
+		line := scanner.Text()
+
+		if !strings.HasPrefix(line, "/") {
+			server.SendMessage(line)
+			continue
+		}
+
+		input := strings.Split(line, " ")
 
 		switch input[0] {
 		case "/connect":
@@ -79,6 +86,8 @@ func ReadInput(server *Server) {
 			ConnectToPeer(server, port)
 		case "/peers":
 			PrintPeers(server)
+		default:
+			fmt.Printf("Unknown command '%s'\n", input[0][1:])
 		}
 	}
 }
