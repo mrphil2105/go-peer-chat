@@ -5,7 +5,7 @@ package connect;
 option go_package = "./grpc/chat";
 
 service ChatService {
-    rpc OpenChat(stream Message) returns (Void);
+    rpc OpenChat(stream Message) returns (Null);
 }
 
 message Message {
@@ -14,4 +14,4 @@ message Message {
     string content = 3;
 }
 
-message Void {}
+message Null {}

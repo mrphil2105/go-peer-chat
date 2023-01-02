@@ -44,7 +44,7 @@ func (c *chatServiceClient) OpenChat(ctx context.Context, opts ...grpc.CallOptio
 
 type ChatService_OpenChatClient interface {
 	Send(*Message) error
-	CloseAndRecv() (*Void, error)
+	CloseAndRecv() (*Null, error)
 	grpc.ClientStream
 }
 
@@ -56,11 +56,11 @@ func (x *chatServiceOpenChatClient) Send(m *Message) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *chatServiceOpenChatClient) CloseAndRecv() (*Void, error) {
+func (x *chatServiceOpenChatClient) CloseAndRecv() (*Null, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(Void)
+	m := new(Null)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func _ChatService_OpenChat_Handler(srv interface{}, stream grpc.ServerStream) er
 }
 
 type ChatService_OpenChatServer interface {
-	SendAndClose(*Void) error
+	SendAndClose(*Null) error
 	Recv() (*Message, error)
 	grpc.ServerStream
 }
@@ -109,7 +109,7 @@ type chatServiceOpenChatServer struct {
 	grpc.ServerStream
 }
 
-func (x *chatServiceOpenChatServer) SendAndClose(m *Void) error {
+func (x *chatServiceOpenChatServer) SendAndClose(m *Null) error {
 	return x.ServerStream.SendMsg(m)
 }
 
